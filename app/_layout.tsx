@@ -1,24 +1,19 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Stack } from "expo-router";
+import "../global.css";
+import {useFonts} from "expo-font";
+import { ActivityIndicator } from "react-native";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+  const [fontsLoaded] = useFonts({
+    'robotoRegular': require('../assets/fonts/Roboto-Regular.ttf'),
+    'robotoSemiBold': require('../assets/fonts/Roboto-SemiBold.ttf'),
+    'robotoBold': require('../assets/fonts/Roboto_Condensed-Bold.ttf'),
+    'montserratRegular': require('../assets/fonts/Montserrat-Regular.ttf'),
+    'montserratBold': require('../assets/fonts/Montserrat-Bold.ttf'),
+    'montserratSemiBold': require('../assets/fonts/Montserrat-SemiBold.ttf'),
+  });
+  if (!fontsLoaded) {
+    return <ActivityIndicator />
+  }
+  return <Stack />;
 }
