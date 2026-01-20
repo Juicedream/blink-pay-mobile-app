@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Navigator, Stack } from "expo-router";
 import "../global.css";
 import {useFonts} from "expo-font";
 import { ActivityIndicator } from "react-native";
@@ -15,5 +15,9 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return <ActivityIndicator />
   }
-  return <Stack />;
+  return <Stack> 
+      <Stack.Screen name="index"  options={{headerShown: false}} />
+      <Stack.Screen name="login" options={{title: "SECURE LOGIN", headerBackButtonDisplayMode: "minimal", headerTitleStyle: {color: "#3b82f6"}}} />
+      <Stack.Screen name="register" options={{title: "REGISTER", headerBackButtonDisplayMode: "minimal", headerTitleStyle: {color: "#3b82f6"}}} />
+  </Stack>;
 }
