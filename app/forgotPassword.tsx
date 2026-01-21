@@ -1,4 +1,4 @@
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import {
   Image,
   Pressable,
@@ -10,16 +10,11 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 
-
-export default function Login() {
+export default function ForgotPassword() {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-  const goToDashboard = () => {
-    router.navigate("/(tabs)");
-  }
   return (
     <ScrollView centerContent>
-      <View className="flex-1 w-full h-full items-center mt-10">
+      <View className=" flex w-full h-full items-center justify-center">
         <View className="bg-dark-blue p-3 rounded-2xl shadow-black shadow-md">
           <Ionicons name="flash-sharp" size={52} color="white" />
         </View>
@@ -29,7 +24,7 @@ export default function Login() {
         </View>
         <View className="mt-5 justify-center w-[60%]">
           <Text className="text-center text-xl font-robotoRegular text-gray-400">
-            Fast Secure and Seamless
+            Kindly include your email, if it exist in our database we will send an email.
           </Text>
           <View className="w-full flex flex-col mt-12 gap-1 justify-center">
             <Text className="font-robotoSemiBold px-2">Email</Text>
@@ -39,48 +34,25 @@ export default function Login() {
               autoFocus
               keyboardType="email-address"
             />
-            <View className="relative">
-              <Text className="font-robotoSemiBold px-2 mt-4">Password</Text>
-              <TextInput
-                placeholder="••••••••••••••••"
-                className="border border-slate-300 px-4 py-3 rounded-full shadow-sm bg-white"
-                secureTextEntry={showPassword}
-              />
-              <Pressable
-                className="absolute right-3 top-[52%]"
-                onPress={() => setShowPassword((prev) => !prev)}
-              >
-                {showPassword ? (
-                  <Ionicons name="eye" size={22} color={"gray"} />
-                ) : (
-                  <Ionicons name="eye-off" size={22} color={"gray"} />
-                )}
-              </Pressable>
-            </View>
-            <Link href="/forgotPassword" className="text-right mt-2">
-              <Text className="text-blue-500 font-montserratBold">
-                Forgot Password?
-              </Text>
-            </Link>
           </View>
         </View>
         <View className="mt-12 bg-dark-blue w-[60%] py-4 px-2 rounded-full">
           <Pressable
-            onPress={goToDashboard}
+            onPress={() => alert("Ok")}
             className="flex-row items-center justify-center gap-2"
           >
             <Text className="text-center text-gray-100 font-montserratBold text-xl">
-              Login
+              Reset
             </Text>
-            <Ionicons name="arrow-forward-outline" size={24} color="white" />
+            {/* <Ionicons name="arrow-forward-outline" size={24} color="white" /> */}
           </Pressable>
         </View>
         <View className="flex-row mt-6">
           <Text className="font-montserratRegular text-gray-800">
-            Don't have an account?{" "}
+            Remember your credentials?{" "}
           </Text>
-          <Link href="/register">
-            <Text className="text-blue-500 font-robotoSemiBold">Register</Text>
+          <Link href="/login">
+            <Text className="text-blue-500 font-robotoSemiBold">Login</Text>
           </Link>
         </View>
       </View>
