@@ -65,6 +65,58 @@ const activityData2 = [
     iconColor: "orange",
   },
 ];
+const activityData3 = [
+  {
+    iconName: "person-outline",
+    label: "Transfer To Premier Care",
+    purpose: "Transfer",
+    amount: 95000,
+    status: "debit",
+    iconColor: "red",
+  },
+  {
+    iconName: "bag-outline",
+    label: "Market Runs",
+    purpose: "Shopping",
+    amount: 34000,
+    status: "debit",
+    iconColor: "red",
+  },
+  {
+    iconName: "globe-outline",
+    label: "Data Recharge",
+    purpose: "Expenses",
+    amount: 123023,
+    status: "debit",
+    iconColor: "orange",
+  },
+];
+const activityData4 = [
+  {
+    iconName: "card-outline",
+    label: "Dstv Subscription",
+    purpose: "Yanga Package - December",
+    amount: 15000,
+    status: "debit",
+    iconColor: "red",
+  },
+  {
+    iconName: "card-outline",
+    label: "POS - AyoMeatGlobal6H",
+    purpose: "Moniepoint Terminal",
+    amount: 32000,
+    status: "debit",
+    iconColor: "red",
+  },
+  {
+    iconName: "globe-outline",
+    label: "Google Storage Subscription",
+    purpose: "Google Pay - December",
+    amount: 24368,
+    status: "debit",
+    iconColor: "orange",
+  },
+];
 
 const history = () => {
   const router = useRouter();
@@ -76,8 +128,15 @@ const history = () => {
     outflow: -1,
     cards: -1,
   }) as any;
-  console.log(searchQuery);
-  const onChangeSearch = (query: any) => setSearchQuery(query);
+  // console.log(searchQuery);
+  const onChangeSearch = (query: any) => {
+    setSearchQuery(query);
+    if (!query) {
+      changeState("all");
+    } else {
+      changeState(query);
+    }
+  };
   const goBack = () => {
     router.back();
   };
@@ -128,9 +187,18 @@ const history = () => {
         {/* action tabs */}
         <View className="flex-row mt-8 justify-around">
           {tabs.map((tab, index) => (
-            <Pressable key={index} onPress={() => changeState(tab.toLowerCase())}>
-              <View className={`py-3 px-5 ${actionTabs[tab.toLowerCase()] === 0 ? "bg-green-700" : "bg-white"} rounded-full shadow-black shadow-sm`}>
-                <Text className={`text-xl ${actionTabs[tab.toLowerCase()] === 0 ? "text-white" : "text-black"}`}>{tab}</Text>
+            <Pressable
+              key={index}
+              onPress={() => changeState(tab.toLowerCase())}
+            >
+              <View
+                className={`py-3 px-5 ${actionTabs[tab.toLowerCase()] === 0 ? "bg-green-700" : "bg-white"} rounded-full shadow-black shadow-sm`}
+              >
+                <Text
+                  className={`text-xl ${actionTabs[tab.toLowerCase()] === 0 ? "text-white" : "text-black"}`}
+                >
+                  {tab}
+                </Text>
               </View>
             </Pressable>
           ))}
@@ -141,16 +209,25 @@ const history = () => {
             <Text className="flex-1 text-gray-500 font-montserratBold text-xl mb-3">
               Today
             </Text>
-            
           </View>
           {/* activities */}
-          <View className="gap-6 border-b border-slate-100 pb-4 shadow-black shadow-sm">
-            {actionTabs['all'] === 0 && activityData.map((activity) => (
-              <RecentActivity key={activity.label} {...(activity as any)} />
-            ))}
-            {actionTabs['inflow'] === 0 && activityData2.map((activity) => (
-              <RecentActivity key={activity.label} {...(activity as any)} />
-            ))}
+          <View className="gap-6 pb-4 shadow-black shadow-sm">
+            {actionTabs["all"] === 0 &&
+              activityData.map((activity) => (
+                <RecentActivity key={activity.label} {...(activity as any)} />
+              ))}
+            {actionTabs["inflow"] === 0 &&
+              activityData2.map((activity) => (
+                <RecentActivity key={activity.label} {...(activity as any)} />
+              ))}
+            {actionTabs["outflow"] === 0 &&
+              activityData3.map((activity) => (
+                <RecentActivity key={activity.label} {...(activity as any)} />
+              ))}
+            {actionTabs["cards"] === 0 &&
+              activityData4.map((activity) => (
+                <RecentActivity key={activity.label} {...(activity as any)} />
+              ))}
           </View>
         </View>
         {/* Yesterday */}
@@ -159,10 +236,9 @@ const history = () => {
             <Text className="flex-1 text-gray-500 font-montserratBold text-xl mb-3">
               Yesterday
             </Text>
-            
           </View>
           {/* activities */}
-          <View className="gap-6 border-b border-slate-100 pb-4 shadow-black shadow-sm">
+          <View className="gap-6 pb-4 shadow-black shadow-sm">
             {activityData.map((activity) => (
               <RecentActivity key={activity.label} {...(activity as any)} />
             ))}
@@ -174,10 +250,9 @@ const history = () => {
             <Text className="flex-1 text-gray-500 font-montserratBold text-xl mb-3">
               January 12, 2026
             </Text>
-            
           </View>
           {/* activities */}
-          <View className="gap-6 border-b border-slate-100 pb-4 shadow-black shadow-sm">
+          <View className="gap-6 pb-4 shadow-black shadow-sm">
             {activityData.map((activity) => (
               <RecentActivity key={activity.label} {...(activity as any)} />
             ))}
