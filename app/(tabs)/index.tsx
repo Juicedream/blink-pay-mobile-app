@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Pressable,
   ScrollView,
@@ -14,6 +14,7 @@ import ProfileHeader from "@/components/dashboard/ProfileHeader";
 import BalanceHeader from "@/components/dashboard/BalanceHeader";
 import ActionCards from "@/components/dashboard/ActionCards";
 import RecentActivity from "@/components/shared/RecentActivity";
+import ToastManager, { Toast } from 'toastify-react-native'
 
 const atmCardData = [
   {
@@ -77,6 +78,12 @@ const index = () => {
   const goToHistory = () => {
     router.navigate('/(tabs)/history');
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      Toast.success("Welcome Back 👋");
+    }, 100)
+  }, [])
 
   return (
     <ScrollView centerContent>
@@ -147,6 +154,7 @@ const index = () => {
           </View>
         </View>
       </View>
+      <ToastManager />
     </ScrollView>
   );
 };

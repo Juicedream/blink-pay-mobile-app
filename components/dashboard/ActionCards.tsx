@@ -20,7 +20,7 @@ const ActionCards = () => {
           </Text>
         </View>
       </Pressable>
-      <Pressable onPress={() => console.log("Pay Bills button")}>
+      <Pressable onPress={() => console.log("Top Up button")}>
         <View className="flex-col size-32 bg-white items-center justify-center rounded-xl gap-3 shadow-black shadow-sm">
           <View className="px-4 py-4 bg-blue-700/10 rounded-full">
             <Ionicons name="receipt-outline" color={"green"} size={22} />
