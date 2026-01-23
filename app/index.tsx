@@ -1,8 +1,9 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function Index() {
+  const router = useRouter();
   return (
     <View className="flex-1 items-center justify-center">
       <View className="p-10 top-0 absolute">
@@ -30,7 +31,7 @@ export default function Index() {
           </View>
         </View>
         <View className="mt-12 bg-dark-blue w-[60%] py-4 px-2 rounded-full">
-          <Pressable onPress={() => alert("Ok")} className="flex-row items-center justify-center gap-2">
+          <Pressable onPress={() => router.navigate('/(tabs)')} className="flex-row items-center justify-center gap-2">
             <Text className="text-center text-gray-100 font-montserratBold text-xl">
               Get Started
             </Text>

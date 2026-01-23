@@ -6,6 +6,17 @@ export default function DashboardLayout() {
       screenOptions={{
         headerShown: false,
       }}
-    />
+    >
+      {/* <Stack.Screen name="pin" options={{
+          presentation: 'modal',
+          webModalStyle: {
+            width: '95vw',
+            height: '95vh',
+            border: 'none',
+          },
+          sheetAllowedDetents: 'fitToContents',
+          
+        }} /> */}
+    </Stack>
   );
 }

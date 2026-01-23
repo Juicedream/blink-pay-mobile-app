@@ -163,6 +163,7 @@ const history = () => {
           secondBtn={settings}
           showSecondButton={true}
           secondBtnIcon="ellipsis-horizontal-outline"
+          headerName="Transaction History"
         />
         {/* search input */}
         <View className="w-full mt-5">
