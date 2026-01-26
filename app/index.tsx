@@ -1,9 +1,24 @@
 import { Link, useRouter } from "expo-router";
 import { Image, Pressable, Text, View } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as SecureStore from "expo-secure-store"
+import { useEffect } from "react";
 
 export default function Index() {
   const router = useRouter();
+  useEffect(() => {
+    async function checkIfGetStarted () {
+      const value = await SecureStore.getItemAsync("get_started");
+      if (value) {
+        router.push('/login')
+      }
+    }
+    checkIfGetStarted()
+  }, [])
+  const getStartedHandler = async ( ) => {
+    await SecureStore.setItemAsync("get_started", "true");
+    router.push('/login')
+  }
   return (
     <View className="flex-1 items-center justify-center">
       <View className="p-10 top-0 absolute">
@@ -31,7 +46,7 @@ export default function Index() {
           </View>
         </View>
         <View className="mt-12 bg-dark-blue w-[60%] py-4 px-2 rounded-full">
-          <Pressable onPress={() => router.navigate('/(tabs)')} className="flex-row items-center justify-center gap-2">
+          <Pressable onPress={getStartedHandler} className="flex-row items-center justify-center gap-2">
             <Text className="text-center text-gray-100 font-montserratBold text-xl">
               Get Started
             </Text>

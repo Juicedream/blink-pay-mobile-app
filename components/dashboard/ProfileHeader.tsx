@@ -4,7 +4,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import ToastManager, { Toast } from "toastify-react-native";
 
-const ProfileHeader = () => {
+const ProfileHeader = ({name}: {name:string}) => {
   const router = useRouter();
   const gotoProfile = () => {
     router.navigate("/(tabs)/profile");
@@ -27,7 +27,7 @@ const ProfileHeader = () => {
               Welcome back,
             </Text>
             <Text className="font-montserratSemiBold text-xl">
-              Alex Sterling
+              {name}
             </Text>
           </View>
         </View>

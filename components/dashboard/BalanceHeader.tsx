@@ -1,10 +1,24 @@
 import { View, Text, TextInput, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as SecureStore from "expo-secure-store";
 
-const BalanceHeader = () => {
-  const totalBalance = 1250500;
+const BalanceHeader = ({balance}:{balance:any}) => {
+  const totalBalance = 987995769;
   const [showBalance, setShowBalance] = useState(false);
+  async function setStateHiddenPassword () {
+    const value = await SecureStore.getItemAsync("showBalance");
+    if (!value || value === "false") {
+      await SecureStore.setItemAsync("showBalance", "true");
+      setShowBalance(true);
+    } else {
+      await SecureStore.setItemAsync("showBalance", "false");
+      setShowBalance(false);
+    }
+  }
+  useEffect(() => {
+   setStateHiddenPassword();
+  }, [])
   return (
     <View className="mt-6 flex-col items-center gap-2">
       <Text className="uppercase font-montserratSemiBold text-gray-400 text-lg">
@@ -17,7 +31,7 @@ const BalanceHeader = () => {
         <View className="flex-row items-center gap-2">
           <TextInput
             readOnly
-            value={`${totalBalance.toLocaleString()}.00`}
+            value={`${Number(balance).toLocaleString() ||totalBalance.toLocaleString()}.00`}
             className="text-5xl font-montserratBold text-center mt-4"
             secureTextEntry={showBalance}
           />
