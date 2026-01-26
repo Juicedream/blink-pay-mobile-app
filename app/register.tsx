@@ -95,11 +95,7 @@ export default function Login() {
                 className="top-[55%] left-3 absolute"
               />
             </View>
-            <Link href="/forgotPassword" className="text-right mt-2">
-              <Text className="text-blue-500 font-montserratBold">
-                Forgot Password?
-              </Text>
-            </Link>
+           
           </View>
         </View>
         <View className="mt-12 bg-success-green w-[60%] py-4 px-2 rounded-full">

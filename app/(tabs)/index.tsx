@@ -1,8 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +16,8 @@ import BalanceHeader from "@/components/dashboard/BalanceHeader";
 import ActionCards from "@/components/dashboard/ActionCards";
 import RecentActivity from "@/components/shared/RecentActivity";
 import ToastManager, { Toast } from 'toastify-react-native'
+import * as SecureStore from "expo-secure-store"
+import { fetchUserDetails } from "../api/fetchUserDetails";
 
 const atmCardData = [
   {
@@ -73,32 +76,86 @@ const activityData = [
   },
 ];
 
+interface User {
+  user: {
+    name: string;
+    acc_balance: number;
+  };
+}
+
 const index = () => {
   const router = useRouter();
+  const [userData, setUserData] = useState<User>();
+  const [refreshing, setRefreshing] = useState(false);
+  // const userData = await SecureStore.getItemAsync("user_data");
+  // console.log(userData)
   const goToHistory = () => {
     router.navigate('/(tabs)/history');
   }
+  async function checkIfLoggedIn (){
+      const token = await SecureStore.getItemAsync("jwt_token");
+      if (token) {
+        router.push("/(tabs)");
+      } else {
+        router.push("/login")
+      }
+    }
+
+        async function profiledata() {
+  const storedUser = await SecureStore.getItemAsync("user_data");
+
+  if (!storedUser) {
+    const token = await SecureStore.getItemAsync("jwt_token");
+    const data = await fetchUserDetails(token as any);
+
+    // save as STRING
+    await SecureStore.setItemAsync(
+      "user_data",
+      JSON.stringify(data)
+    );
+
+    setUserData(data);
+  } else {
+    // parse back to object
+    setUserData(JSON.parse(storedUser));
+  }
+}
+
+    const onRefresh = async () => {
+      setRefreshing(true)
+      await SecureStore.deleteItemAsync("user_data");
+      await profiledata();
+      setRefreshing(false);
+    }
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     Toast.success("Welcome Back 👋");
+  //   }, 100)
+  // }, [])
+ useEffect(() => {
+    checkIfLoggedIn()
+  }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      Toast.success("Welcome Back 👋");
-    }, 100)
-  }, [])
+
+profiledata();
+  },[]) 
 
   return (
-    <ScrollView centerContent>
+    <ScrollView centerContent refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       <View className="px-6">
         {/* Profile and notification */}
-        <ProfileHeader />
+        <ProfileHeader name={userData?.user?.name as any}/>
         {/* Total Balance */}
-        <BalanceHeader />
+        <BalanceHeader balance={userData?.user?.acc_balance as any}/>
         {/* Transfer, paybills, Top up cards*/}
         <ActionCards />
         {/* ATM CARDS */}
         <View className="flex-col gap-2 mt-8">
           <View className="flex-row justify-between px-2">
             <Text className="font-montserratBold text-xl">My Cards</Text>
-            <Link href="/login">
+            <Link href="/(tabs)/cards">
               <Text className="text-success-green font-montserratBold">
                 View All
               </Text>

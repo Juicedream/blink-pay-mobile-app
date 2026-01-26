@@ -31,7 +31,7 @@ export default function Transfer() {
     }
   };
 
-  console.log({ accountNumber, amount, note });
+ 
 
   useEffect(() => {
     handleShowIcon();
