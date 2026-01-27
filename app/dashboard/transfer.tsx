@@ -7,10 +7,21 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import AppHeader from "@/components/shared/AppHeader";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import CurrencyInput from "react-native-currency-input";
+import ToastManager, { Toast } from "toastify-react-native";
+import * as SecureStore from "expo-secure-store";
+import { showAccountInfo } from "../api/singleTransfer";
+
+interface UserData {
+  user: {
+    acc_number: number;
+    acc_balance: number;
+  }
+  }
 
 export default function Transfer() {
   const [activeTab, setActiveTab] = useState<"blink" | "other">("blink");
@@ -18,24 +29,78 @@ export default function Transfer() {
   const [note, setNote] = useState("");
   const [amount, setAmount] = useState(0.0);
   const [showFoundIcon, setShowFoundIcon] = useState(false);
+  const [userData, setUserData] = useState<UserData>();
+  const [receiverAccName, setReceiverAccName] = useState("");
+  const [loadingReceiver, setLoadingReceiver] = useState(false);
 
   const router = useRouter();
   const accountNumberTyping = (number: any) => setAccountNumber(number);
   const noteTyping = (noteText: any) => setNote(noteText);
 
-  const handleShowIcon = () => {
-    if (String(accountNumber).length === 10) {
-      setShowFoundIcon(true);
-    } else {
-      setShowFoundIcon(false);
+  const handleShowIcon = async () => {
+     const token = await SecureStore.getItemAsync("jwt_token");
+    if (String(accountNumber).length === 10 || String(accountNumber).length === 11) {
+      try {
+        setLoadingReceiver(true);
+        setShowFoundIcon(false);
+        const response = await showAccountInfo(accountNumber as any, token as any);
+        if (response.code >= 400 && response.code <= 500 ) {
+          throw new Error(response.msg);
+        }
+        setShowFoundIcon(true);
+        setReceiverAccName(response.account_info.name);
+      } catch (error:any) {
+        console.log(error);
+        Toast.error(error?.message)
+      }finally {
+        setLoadingReceiver(false)
+      }
     }
   };
 
- 
+  const handleTransferData = async () => {
+    // console.log(typeof amount
+    if (!amount || !accountNumber || !note) return;
+
+    if (String(accountNumber).length > 11) {
+      Toast.error("Account number should be 11 in length");
+      return
+    }
+    if (amount > (userData?.user.acc_balance as any)) {
+      Toast.error(`Amount cannot be more than ₦${userData?.user.acc_balance.toLocaleString()}`);
+      return;
+    }
+    let data = {receiver_acc_number: Number(accountNumber), sender_pin: "", amount, narration: note};
+    data = JSON.stringify(data) as any;
+    console.log({data_from_transfer_screen: data});
+    await SecureStore.setItemAsync("saved", data as any);
+  };
+
+
 
   useEffect(() => {
     handleShowIcon();
   }, [accountNumber]);
+
+  useEffect(() => {
+    async function showData() {
+      let data = await SecureStore.getItemAsync("user_data");
+      data = JSON.parse(data as any);
+      setUserData(data as any);
+    }
+    showData();
+    // console.log({ userData });
+  }, []);
+
+  useEffect(() => {
+    handleTransferData();
+  }, [accountNumber, amount, note])
+
+ 
+ 
+
+ 
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -84,17 +149,29 @@ export default function Transfer() {
               <View className="w-full flex-col bg-white rounded-3xl py-6 px-6 mb-5 shadow-black shadow-sm">
                 <View className="flex-col gap-2">
                   <Text className="font-montserratSemiBold">
+                    Your Account Number : {userData?.user.acc_number}
+                  </Text>
+                  <Text className="font-montserratSemiBold">
+                    Balance : ₦{userData?.user.acc_balance.toLocaleString()}
+                  </Text>
+                 </View>
+              </View>
+              {/* account number */}
+              <View className="w-full flex-col bg-white rounded-3xl py-6 px-6 mb-5 shadow-black shadow-sm">
+                <View className="flex-col gap-2">
+                  <Text className="font-montserratSemiBold">
                     Account Number
                   </Text>
                   <View className="relative">
                     <TextInput
                       autoFocus
                       keyboardType="numeric"
-                      maxLength={10}
+                      maxLength={11}
                       value={accountNumber as any}
                       onChangeText={accountNumberTyping}
                       className="py-4 px-6 w-full rounded-full border border-slate-300 text-2xl font-montserratSemiBold"
                     />
+                    {loadingReceiver && <ActivityIndicator color="green" size={25} className="absolute right-4 top-[25%]"/>}
                     {showFoundIcon && (
                       <Ionicons
                         name="checkmark-circle-outline"
@@ -111,9 +188,9 @@ export default function Transfer() {
                         size={15}
                         color={"green"}
                       />
-                      <Text className="text-dark-blue font-montserratSemiBold">
+                      <Text className="text-dark-blue font-montserratSemiBold uppercase">
                         {" "}
-                        Recipient: JAMES ADEDOYIN
+                        {receiverAccName}
                       </Text>
                     </View>
                   )}
@@ -132,7 +209,7 @@ export default function Transfer() {
                       prefix="₦ "
                       delimiter=","
                       separator="."
-                      precision={2}
+                      precision={0}
                       minValue={0}
                     />
                   </View>
@@ -160,7 +237,10 @@ export default function Transfer() {
                 </View>
               </View>
               {/* continue Button */}
-              <Pressable onPress={() => router.push("/dashboard/pin")} className="bg-dark-blue rounded-full py-6 px-6 mt-20">
+              <Pressable
+                onPress={() => router.push("/dashboard/pin")}
+                className="bg-dark-blue rounded-full py-6 px-6 mt-6"
+              >
                 <View className="flex-row gap-2 items-center justify-center">
                   <Text className="text-white font-montserratSemiBold text-xl">
                     Continue
@@ -178,6 +258,7 @@ export default function Transfer() {
           )}
         </View>
       </View>
+      <ToastManager />
     </ScrollView>
   );
 }

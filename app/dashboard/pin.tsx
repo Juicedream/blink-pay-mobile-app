@@ -10,8 +10,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { OtpInput, OtpInputRef } from "react-native-otp-entry";
 import { Ionicons } from "@expo/vector-icons";
 import ToastManager, { Toast } from "toastify-react-native";
-import { router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import AppHeader from "@/components/shared/AppHeader";
+import * as SecureStore from "expo-secure-store";
+import { singleTransfer } from "../api/singleTransfer";
+
+interface DataDto {
+  receiver_acc_number: string;
+  sender_pin: string;
+  amount: string;
+  narration: string;
+}
 
 const Pin = () => {
   const [pin, setPin] = useState("");
@@ -64,22 +73,44 @@ const Pin = () => {
 
     setShowModal(true);
 
-    const timer = setTimeout(() => {
-      const decision = Math.floor(Math.random() * 2);
+    async function sendMoney() {
+      const token = await SecureStore.getItemAsync("jwt_token");
+      let savedRaw = await SecureStore.getItemAsync("saved");
+      let savedData = JSON.parse(savedRaw as any);
+      const updatedData = {
+        ...savedData,
+        sender_pin: pin,
+      };
+      const {
+            amount,
+            receiver_acc_number,
+            narration,
+            sender_pin
+        } = updatedData;
+      console.log({datafromPin: updatedData});
 
-      if (decision === 0) {
-        //   Toast.error("Money could not be sent at the moment!");
-        router.navigate("/dashboard/failedTransactionMessage");
-      } else {
+      try {
+        const response = await singleTransfer(receiver_acc_number, amount, narration, sender_pin, token as any);
+        if (response.code >= 400 && response.code <= 500) {
+          await SecureStore.setItem("response", JSON.stringify(response));
+          setPin("");
+          otpRef.current?.setValue("");
+          setShowModal(false);
+          router.navigate("/dashboard/failedTransactionMessage");
+          return;
+        }
+        await SecureStore.setItem("response", JSON.stringify(response));
+        setPin("");
+        otpRef.current?.setValue("");
+        setShowModal(false);
         router.navigate("/dashboard/successTransactionMessage");
-        // Toast.success("Money sent successfully!");
-      }
-      setPin("");
-      otpRef.current?.setValue("");
-      setShowModal(false);
-    }, 2000);
+      } catch (error) {
+        console.log(error);
+      } 
+    }
 
-    return () => clearTimeout(timer);
+    sendMoney();
+
   }, [pin]);
 
   return (
@@ -96,7 +127,6 @@ const Pin = () => {
         textInputProps={{
           editable: false, // 🔒 disable keyboard
         }}
-        
       />
 
       <View style={styles.pad} className="h-1/2">

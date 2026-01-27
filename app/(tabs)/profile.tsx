@@ -29,6 +29,9 @@ const profile = () => {
   };
   const logout = async () => {
     await SecureStore.deleteItemAsync("jwt_token");
+    await SecureStore.deleteItemAsync("user_data");
+    await SecureStore.deleteItemAsync("response");
+    await SecureStore.deleteItemAsync("saved");
     router.push("/login");
     Toast.success("Logged out successfully!")
   };

@@ -1,11 +1,57 @@
 import { View, Text, ScrollView, Pressable, Image } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppHeader from "@/components/shared/AppHeader";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
+import { showAccountInfo } from "../api/singleTransfer";
+interface DATA {
+  msg: string;
+  amount: number;
+  receiver_name: string;
+  receiver_acc_number: number;
+  narration: string;
+  tran_details: {
+    account_id: string;
+  };
+}
 
 const SuccessTransactionMessage = () => {
   const router = useRouter();
+  const [data, setData] = useState<DATA>();
+  const date = new Date();
+  const todaysDate = date.toUTCString();
+  useEffect(() => {
+    async function getSavedData() {
+      const token = await SecureStore.getItemAsync("jwt_token");
+      let errorResponse = await SecureStore.getItemAsync("response");
+      errorResponse = JSON.parse(errorResponse as any);
+      let saved = await SecureStore.getItemAsync("saved");
+      saved = JSON.parse(saved as any);
+      const { receiver_acc_number, sender_pin, amount, narration } =
+        saved as any;
+      console.log({ saved });
+      const response = await showAccountInfo(
+        receiver_acc_number as any,
+        token as any,
+      );
+      let name = response.account_info.name;
+      let updatedData = {
+        ...(saved as any),
+        ...(errorResponse as any),
+        receiver_name: name,
+      };
+      setData(updatedData);
+      setTimeout(async () => {
+        await SecureStore.deleteItemAsync("response");https://www.google.com/search?sca_esv=b51a820206a0f7d2&rlz=1C5AJCO_enNG1192NG1192&aep=48&prmd=ivns&sxsrf=ANbL-n7u0J9LFaeqe1x068O2qFZQwtLqdQ:1769526193471&source=lnms&sa=X&ved=2ahUKEwiV3Lrh_quSAxWTV0EAHbHyOggQ0pQJegQIBRAI
+        await SecureStore.deleteItemAsync("saved");
+        console.log("cleared all")
+      }, 3000);
+
+    }
+    getSavedData();
+  }, []);
+  console.log(data);
   return (
     <ScrollView centerContent>
       <AppHeader
@@ -24,30 +70,39 @@ const SuccessTransactionMessage = () => {
         <Text className="text-center px-24 font-robotoRegular mt-4 text-gray-500 text-lg">
           Your money is on its way
         </Text>
-        <Text className="text-green-500 text-4xl font-montserratBold mt-4 shadow-black shadow-sm">₦ 1,320,887.00</Text>
+        <Text className="text-green-500 text-4xl font-montserratBold mt-4 shadow-black shadow-sm">
+          ₦ {data?.amount.toLocaleString()}
+        </Text>
         <View className="mt-8 w-full px-6 py-10 bg-slate-100 flex-col gap-2 rounded-2xl shadow-green-500/10 shadow-lg">
           <View className="flex-row justify-between">
             <View className="flex-row gap-4">
               <Pressable>
                 <View className="size-14 rounded-full border-cyan-400 border items-center">
                   {/* profile image */}
-                 <View className="px-4 py-4 rounded-full bg-green-700/30">
-                    <Text className="text-green-700 text-xl font-robotoBold">AS</Text>
-                 </View>
+                  <View className="px-4 py-4 rounded-full bg-green-700/30">
+                    <Text className="text-green-700 text-xl font-robotoBold">
+                      AS
+                    </Text>
+                  </View>
                 </View>
               </Pressable>
               <View>
                 <Text className="font-montserratSemiBold text-xl">
-                  Alex Sterling
+                  {data?.receiver_name}
                 </Text>
                 <Text className="font-montserratRegular text-gray-500">
-                  ....9832 . Chase Bank
+                  ....{`${String(data?.receiver_acc_number).slice(6)}`} . Blink
+                  Pay Bank
                 </Text>
               </View>
             </View>
             <View>
               <Pressable>
-                <Ionicons name="shield-checkmark-outline" size={18} color="green" />
+                <Ionicons
+                  name="shield-checkmark-outline"
+                  size={18}
+                  color="green"
+                />
               </Pressable>
             </View>
           </View>
@@ -59,7 +114,7 @@ const SuccessTransactionMessage = () => {
             <View className="flex-row items-center gap-2">
               {/* <Ionicons name="person-circle" size={14} color="green" /> */}
               <Text className="font-montserratSemiBold text-lg">
-                Oct 24, 2023 . 10:45 AM
+                {todaysDate}
               </Text>
             </View>
           </View>
@@ -70,7 +125,7 @@ const SuccessTransactionMessage = () => {
             </View>
             <View className="flex-row items-center gap-2">
               <Text className="font-montserratSemiBold text-lg">
-                BP-98234105
+                {data?.tran_details.account_id.slice(0, 10)}
               </Text>
               <Ionicons name="copy" size={14} color="green" />
             </View>
@@ -78,12 +133,12 @@ const SuccessTransactionMessage = () => {
           <View className="flex-row items-center justify-between mt-4">
             <View className="flex-row gap-2 items-center">
               <Ionicons name="calendar" size={12} />
-              <Text className="font-robotoRegular text-md">Date & Time:</Text>
+              <Text className="font-robotoRegular text-md">Narration:</Text>
             </View>
             <View className="flex-row items-center gap-2">
               {/* <Ionicons name="person-circle" size={14} color="green" /> */}
               <Text className="font-montserratSemiBold text-lg">
-                Oct 24, 2023 . 10:45 AM
+                {data?.narration}
               </Text>
             </View>
           </View>
